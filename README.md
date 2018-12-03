@@ -1,4 +1,4 @@
-# animu-web
+# Animu-Web
 
 ## Project setup
 ```
@@ -19,3 +19,5 @@ npm run build
 ```
 npm run lint
 ```
+## Notice
+Uses [JavascriptSubtitlesOctopus](https://github.com/Dador/JavascriptSubtitlesOctopus) by Dador for subtitle rendering
