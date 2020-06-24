@@ -1,29 +1,40 @@
 {
-  "name": "animu-web",
+  "name": "animu-test",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve --open --mode development --port 8041",
+    "serve": "vue-cli-service serve --open --mode development --port 8040",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "lodash": "^4.17.10",
+    "@vuex-orm/core": "^0.35.2",
+    "axios": "^0.18.1",
+    "element-ui": "^2.4.11",
+    "hooper": "0.0.6",
+    "jwt-decode": "^2.2.0",
+    "lodash": "^4.17.15",
+    "node-sass": "^4.13.0",
+    "qs": "^6.6.0",
+    "v-debounce": "^0.1.2",
     "velocity-animate": "^1.5.2",
-    "video.js": "^7.1.0",
-    "videojs-hotkeys": "^0.2.22",
-    "vue": "^2.5.17",
-    "vue-js-toggle-button": "^1.3.0",
-    "vue-router": "^3.0.1",
+    "video.js": "^7.4.0",
+    "videojs-hotkeys": "^0.2.24",
+    "vue": "^2.5.22",
+    "vue-awesome": "^3.3.1",
+    "vue-carousel": "^0.17.0",
+    "vue-js-toggle-button": "^1.3.1",
+    "vue-popperjs": "^1.6.3",
+    "vue-router": "^3.0.2",
     "vuex": "^3.0.1"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.0.0",
     "@vue/cli-plugin-eslint": "^3.0.0",
     "@vue/cli-service": "^3.0.0",
-    "node-sass": "^4.9.3",
+    "babel-plugin-component": "^1.1.1",
     "sass-loader": "^7.1.0",
-    "vue-template-compiler": "^2.5.17"
+    "vue-template-compiler": "^2.5.22"
   },
   "eslintConfig": {
     "root": true,

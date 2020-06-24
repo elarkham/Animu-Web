@@ -1,38 +1,48 @@
 <template>
-  <section id="login">
-    <form id="login-form" @keyup.enter="submit" @submit="submit">
-      <h2>Login</h2>
+  <article id="login">
+    <section id="login-wrapper">
+      <form id="login-form" @keyup.enter="submit" @submit="submit">
+        <h2>Login</h2>
 
-      <section id="login-input">
-        <label for="username"> Username </label>
-        <input name="username"
-               v-model="username"
-               id="username"
-               type="text">
+        <section id="login-input">
+          <label for="username"> Username </label>
+          <input name="username"
+                 v-model="username"
+                 id="username"
+                 size="mini"
+                 type="text">
+          </input>
 
-        <label for="password"> Password </label>
-        <input name="password"
-               v-model="password"
-               id="password"
-               type="password">
+          <label for="password"> Password </label>
+          <input name="password"
+                 v-model="password"
+                 id="password"
+                 size="mini"
+                 type="password">
+          </input>
 
-      </section>
+        </section>
 
-      <section id="login-buttons">
-        <button disabled>Register</button>
-        <button>Submit</button>
-      </section>
+        <section id="login-buttons">
+          <button class="mu-button" disabled>Register</button>
+          <button class="mu-button">Submit</button>
+        </section>
 
-      <section id="login-response" :class="{enabled: msg}">
-        <p>{{msg}}</p>
-      </section>
-    </form>
-  </section>
+
+      </form>
+      <el-alert
+        v-show="msg"
+        type="error"
+        class="response"
+        :closable="false"
+        :title="msg"
+        show-icon>
+      </el-alert>
+    </section>
+  </article>
 </template>
 
 <script>
-import router from '@/router.js'
-
 export default {
   name: 'login',
   data: function () {
@@ -43,46 +53,22 @@ export default {
     }
   },
   methods: {
-    submit: function (e){
+    submit(e) {
       const login = this;
 
       // Disable Default Action
       e.preventDefault();
 
-      // Gather Form Data
-      const form_data = {
-        "session": {
-          "username": login.username,
-          "password": login.password,
-        }
-      };
-
-      // Submit Data
-      const opts = {
-        method: "POST",
-        body: JSON.stringify(form_data),
-        headers:
-          { 'Accept': 'application/json',
-            'Content-Type': 'application/json; charset=UTF-8'
-          },
-      };
-      console.log(opts)
-
-      fetch("/api/v1/session", opts)
-        .then(function(resp) {
+      animu
+        .login(login.username, login.password)
+        .then((resp) => {
           console.log(resp)
-          if(resp.ok) {
-            return resp.json();
-          } else {
-            login.msg = "Incorrect Username or Password";
-          }
-        })
-        .then(function(json) {
-          console.log(json)
-          let token = json.jwt;
-          localStorage.setItem('token', token);
           router.push({name: 'home'});
-        });
+        })
+        .catch((error) => {
+          console.log(error)
+          login.msg = "Incorrect Username or Password";
+        })
     }
   }
 }
@@ -92,22 +78,28 @@ export default {
 #login {
   height: 100%;
   display: grid;
-  justify-items: center;
-  align-items: center;
+  place-content: center;
+  place-items: center;
   grid-row: span 2;
+}
+
+#login-wrapper {
+  height: 300px;
 }
 
 #login-form {
   background: $black;
   color: white;
   width: 400px;
-  height: 300px;
+  height: 230px;
   display: grid;
-  grid-template-rows: 1fr 1fr 1fr 0.8fr;
+  grid-template-rows: 1fr 1fr 1fr;
   align-items: center;
+  box-shadow: 0 6px 10px -4px rgba(0,0,0,0.15);
+  border-radius: 12px;
 
   h2 {
-    margin-top: 10%;
+    margin-top: 1rem;
     margin-left: 50px;
   }
 
@@ -125,6 +117,7 @@ export default {
   }
   input {
     justify-self: start;
+    width: 200px;
     color: black;
   }
 }
@@ -146,21 +139,16 @@ export default {
   }
 }
 
-#login-response {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  background: $grey;
-  p {
-    text-align: center;
-    margin: 0;
+.response {
+  margin-top: 10px !important;
+  width: 400px;
+  height: 50px;
+  background: $red !important;
+  color: white !important;
+  .el-alert__description {
+    color: white !important;
   }
 }
 
-#login-response.enabled {
-  background: $red;
-  color: white;
-}
 
 </style>

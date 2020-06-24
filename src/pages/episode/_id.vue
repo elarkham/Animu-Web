@@ -10,12 +10,10 @@
 
 <script>
 import videojs from 'video.js'
-//import 'video.js/dist/video-js.css'
+import 'video.js/dist/video-js.css'
 import videojs_hotkeys from 'videojs-hotkeys'
 
-import animu from '@/assets/js/animu.js'
-import SubtitlesOctopus from '@/assets/js/ass/subtitles-octopus.js'
-
+import SubtitlesOctopus from '@/vendor/ass/subtitles-octopus.js'
 
 const assPlugin = function(options) {
   if(!SubtitlesOctopus){
@@ -101,16 +99,16 @@ export default {
     const id = this.$route.params.id;
     const player = this.player
 
-    animu.get_episode(id, function(json) {
-      profile.episode = json.episode;
+    const success = function(resp) {
+      profile.episode = resp.data.episode;
       const ep = profile.episode;
 
-      // Series
+      // Anime
       const assets = "/assets/";
-      const series_dir = assets + ep.series.directory + "/";
+      const anime_dir = assets + ep.anime.directory + "/";
 
       // Video
-      const video_dir = series_dir + ep.video.dir + "/";
+      const video_dir = anime_dir + ep.video.dir + "/";
       const video_file = video_dir + ep.video.filename;
       console.log("Video File: " + video_file);
 
@@ -118,11 +116,11 @@ export default {
       const subtitles = ep.video.subtitles;
       if(subtitles !== null) {
         const sub_dir = subtitles.dir + "/";
-        const sub_file = series_dir + sub_dir + subtitles.filename;
+        const sub_file = anime_dir + sub_dir + subtitles.filename;
 
         // Fonts
         const font_dir = "/" + subtitles.font_dir + "/";
-        const fonts = subtitles.fonts.map((f) => series_dir + font_dir + f);
+        const fonts = subtitles.fonts.map((f) => anime_dir + font_dir + f);
 
         //SubtitlesOctopus
         player.assPlugin({
@@ -137,7 +135,16 @@ export default {
       profile.playerSetSrc(video_file);
 
       profile.loading = false;
-    });
+    };
+    const failure = function(error) {
+      console.log(error);
+      animu.check_login(error, profile.$router);
+    };
+
+    animu
+      .get_episode(id)
+      .then(success)
+      .catch(failure)
   },
   beforeDestroy: function() {
     this.playerDispose();
@@ -147,13 +154,14 @@ export default {
 
 
 <style lang="scss">
-@import "../../assets/css/video/video-js.css";
+//@import "../../assets/css/video/video-js.css";
 .video-container {
   display: grid;
   grid-template-columns: 1fr;
   justify-items: center;
   align-items: center;
   height: 95%;
+  margin-top: 20px;
 }
 
 .video-content {

@@ -1,10 +1,10 @@
 module.exports = {
   css: {
-    modules: true,
+    //modules: true,
     loaderOptions: {
       // pass options to sass-loader
       sass: {
-        data: `@import "@/assets/css/global/_settings.scss";`
+        data: `@import "@/style/global/_settings.scss";`
       }
     }
   },

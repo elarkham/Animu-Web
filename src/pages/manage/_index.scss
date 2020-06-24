@@ -1,0 +1,92 @@
+.manage {
+  display: grid;
+  margin-top: 20px;
+
+  $row-border: 1px solid $grey;
+
+  .header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    height: 60px;
+    h1 {
+      margin-left: 30px;
+      font-family: 'Bunito', 'sans-serif';
+      font-weight: 500;
+    }
+    .header-buttons {
+      justify-self: end;
+      margin-right: 30px;
+      i {
+        padding-bottom: 1px;
+        font-weight: 600;
+      }
+    }
+  }
+
+  .footer {
+    display: grid;
+    place-items: center;
+    text-align: center;
+
+    height: 60px;
+    border-top: $row-border;
+  }
+
+  .table {
+    justify-self: center;
+    align-self: start;
+
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 6px 10px -4px rgba(0,0,0,0.15);
+    min-width: 60%;
+    max-width: 1000px;
+
+    table {
+      width: 100%;
+    }
+
+    th {
+      vertical-align: bottom;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    th, td {
+      padding: 0.75rem;
+      vertical-align: center;
+    }
+
+    td {
+      border-top: $row-border;
+    }
+
+    div {
+      overflow: hidden;
+    }
+
+    .filter {
+      cursor: auto;
+      width: 320px;
+      //text-align: right;
+    }
+
+    .table-buttons {
+      display: grid;
+      grid-auto-flow: column dense;
+      grid-column-gap: 5px;
+      justify-content: end;
+      justify-items: end;
+      align-items: center;
+
+      .delete {
+        background: $red;
+      }
+      .edit {
+        background: $blue;
+      }
+    }
+
+  }
+}

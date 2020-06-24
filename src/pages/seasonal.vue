@@ -1,13 +1,13 @@
 <template>
   <article id="seasonal">
     <section id="header">
-      <button @click="change_season(-1)">Prev</button>
+      <button @click="change_season(-1)"><icon name="angle-left"/></button>
       <h1 v-text="current_season"></h1>
-      <button @click="change_season(+1)">Next</button>
+      <button :disabled="is_latest" @click="change_season(+1)"><icon name="angle-right"/></button>
     </section>
     <section id="content">
       <transition-group class="card-list" name="card-list" tag="section">
-        <poster-card v-for="show in current.series" :show="show" :key="show.id"></poster-card>
+        <poster-card v-for="anime in current.anime" :anime="anime" :key="anime.id"></poster-card>
       </transition-group>
     </section>
   </article>
@@ -15,7 +15,6 @@
 
 <script>
 import poster_card from '@/components/poster_card.vue'
-import animu from '@/assets/js/animu.js'
 import _ from 'lodash'
 
 const get_cour = function(month) {
@@ -56,12 +55,12 @@ export default {
   name: 'seasonal',
   data: function() {
     return {
-      series: [],
+      anime: [],
       season: {},
       current: {
         year: null,
         cour: null,
-        series: null,
+        anime: null,
       },
     }
   },
@@ -69,7 +68,7 @@ export default {
     'poster-card': poster_card
   },
   computed: {
-    current_season: function() {
+    current_season() {
       const page = this;
       if(!page.current.cour || !page.current.year) {
         var today = new Date();
@@ -77,16 +76,44 @@ export default {
         page.current.year = today.getFullYear();
       }
       return page.current.cour + " " + page.current.year;
-    }
+    },
+    is_latest(){
+      const page = this;
+      var today = new Date();
+      return (page.current.cour == get_cour(today.getMonth()))
+          && (page.current.year == today.getFullYear())
+    },
+  },
+  watch: {
+   // 'current.year': function(year){
+   //   this.set_query('year', year)
+   // },
+   // 'current.cour': function(cour) {
+   //   this.set_query('cour', cour)
+   // }
   },
   methods: {
-    shuffle: function () {
-      this.series = _.shuffle(this.series);
+    set_query(key, value) {
+      const pair = {[key]: value};
+      const query = Object.assign({}, this.$route.query, pair);
+      if (!value) {
+        delete query[key];
+      }
+      router.push({query: query})
     },
-    airdate: function () {
-      this.series = _.sortBy(this.series, ['started_airing_date']).reverse();
+    load_query(query) {
+      const year = Number(query.year)
+      const cour = cour;
+      if (this.season[year] && year && query) {
+        this.set_season(Number(query.year), query.cour);
+      }
     },
-    change_season: function(next) {
+    set_season(year, cour) {
+      this.current.year = year;
+      this.current.cour = cour;
+      this.current.anime = this.season[year][cour];
+    },
+    change_season(next) {
       console.log("Next: " + next);
       const page = this;
       const cur  = this.current;
@@ -115,14 +142,31 @@ export default {
         this.change_season(next);
         return;
       }
-      cur.series = page.season[cur.year][cur.cour];
+      //cur.anime = page.season[cur.year][cur.cour];
+      router.push({query: {year: cur.year, cour: cur.cour}})
     }
   },
-  beforeCreate: function() {
-    const page = this;
-    animu.all_series({'order_by': 'started_airing_date'}, function(json) {
-      console.log(json.series);
-      page.series = json.series.reverse();
+  beforeRouteUpdate(to, _from, next) {
+    if(!to.query.year || !to.query.cour) {
+      const today = new Date();
+      const year = today.getFullYear();
+      const cour = get_cour(today.getMonth());
+      next(`/seasonal?year=${year}&cour=${cour}`)
+      //next({query: {year: year, cour: cour}})
+      return
+    }
+    this.load_query(to.query)
+    next()
+  },
+  beforeRouteEnter(to, _from, next) {
+    next()
+  },
+  beforeCreate() {
+    const query = this.$route.query;
+    const success = (resp) => {
+      console.log(resp);
+      console.log(resp.data.anime);
+      this.anime = resp.data.anime.reverse();
 
       const get_cours = function(start, end) {
         const m1 = start.getMonth()
@@ -142,12 +186,12 @@ export default {
         return _.uniq(cours);
       }
 
-      for (var show of page.series) {
-        var start = new Date(show.started_airing_date.split('-'));
+      for (var anime of this.anime) {
+        var start = new Date(anime.start_date.split('-'));
 
         var end;
-        if(show.finished_airing_date != null) {
-          end = new Date(show.finished_airing_date.split('-'));
+        if(anime.finished_airing_date != null) {
+          end = new Date(anime.finished_airing_date.split('-'));
         } else {
           end = new Date();
         }
@@ -158,23 +202,33 @@ export default {
           const year = t[0];
           const cour = t[1];
 
-          if(page.season[year] && page.season[year][cour]) {
-            page.season[year][cour].push(show);
+          if(this.season[year] && this.season[year][cour]) {
+            this.season[year][cour].push(anime);
           } else {
-            if (!page.season[year]) {
-              page.season[year] = {};
-              page.season[year][cour] = [];
-              page.season[year][cour].push(show);
+            if (!this.season[year]) {
+              this.season[year] = {};
+              this.season[year][cour] = [];
+              this.season[year][cour].push(anime);
             }
             else {
-              page.season[year][cour] = [];
-              page.season[year][cour].push(show);
+              this.season[year][cour] = [];
+              this.season[year][cour].push(anime);
             }
           }
         }
-        page.current.series = page.season[page.current.year][page.current.cour];
       }
-    });
+      router.replace({query: {year: this.current.year, cour: this.current.cour}})
+      this.load_query(query)
+    }
+
+    const failure = (error) => {
+      console.log(error)
+    }
+
+    animu
+      .all_anime({params: {'order_by': 'start_date'}})
+      .then(success)
+      .catch(failure)
   }
 }
 </script>
@@ -186,9 +240,13 @@ export default {
   place-content: stretch;
   background: white;
 
+  border-radius: 12px;
+  box-shadow: 0 6px 10px -4px rgba(0,0,0,0.15);
+
   margin-right:  5%;
   margin-left:   5%;
-  padding-bottom: 30px;
+  margin-top: 20px;
+  padding-bottom: 20px;
 
   #header {
     display: grid;
@@ -198,13 +256,19 @@ export default {
     justify-content: space-between;
     align-content: space-around;
 
-    border-bottom: 2px solid $black;
+    border-bottom: 1px solid darken($grey, 10%);
     margin-bottom: 20px;
   }
 
   button {
-    margin-left:   10px;
-    margin-bottom: 10px;
+    color: $black;
+    font-size: 1.5rem;
+    background-color: transparent;
+    border: none;
+
+    &:disabled {
+      color: darken($grey, 20%);
+    }
   }
   .card-list {
     display: grid;
