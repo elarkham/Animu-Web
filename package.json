@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@vuex-orm/core": "^0.35.2",
-    "axios": "^0.18.1",
+    "axios": "^0.21.1",
     "element-ui": "^2.4.11",
     "hooper": "0.0.6",
     "jwt-decode": "^2.2.0",
